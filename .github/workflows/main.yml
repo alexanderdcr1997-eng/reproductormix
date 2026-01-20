@@ -8,9 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      # Actualizamos el "Checkout" a la versión 4 (la más nueva)
+      - uses: actions/checkout@v4
 
-      # Este es el robot constructor oficial
+      # Este es el robot constructor (ese se queda igual)
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
@@ -18,9 +19,9 @@ jobs:
           command: buildozer android debug
           buildozer_version: master
 
-      # Aquí subimos el APK para que lo puedas descargar
+      # CORRECCIÓN AQUÍ: Usamos upload-artifact@v4 (Versión permitida)
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: ${{ steps.buildozer.outputs.filename }}
