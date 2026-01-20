@@ -8,20 +8,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Actualizamos el "Checkout" a la versión 4 (la más nueva)
       - uses: actions/checkout@v4
 
-      # Este es el robot constructor (ese se queda igual)
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: master
+      # 1. Instalamos las herramientas de Linux manualmente (Más robusto)
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libltdl-dev libffi-dev libssl-dev python3-dev \
+            git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev \
+            libncurses5-dev libncursesw5-dev libtinfo5 cmake
+          
+          # Instalamos Buildozer y una versión compatible de Cython
+          pip3 install --upgrade pip
+          pip3 install --user --upgrade buildozer
+          pip3 install --user --upgrade "Cython<3.0" 
+          
+          # Agregamos la ruta de instalación al sistema para poder usar los comandos
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      # CORRECCIÓN AQUÍ: Usamos upload-artifact@v4 (Versión permitida)
+      # 2. Corremos Buildozer directamente
+      - name: Build with Buildozer
+        run: |
+          # El comando "yes" acepta automáticamente las licencias de Android
+          yes | buildozer android debug
+
+      # 3. Subimos el APK resultante
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk  # Buildozer guarda aquí el resultado
