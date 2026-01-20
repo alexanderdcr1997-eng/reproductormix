@@ -5,37 +5,37 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # CAMBIO IMPORTANTE: Usamos Ubuntu 22.04 que es estable y tiene todas las librerías
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Instalamos las herramientas de Linux manualmente (Más robusto)
+      # 1. Instalamos las dependencias (Lista probada para Ubuntu 22.04)
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             build-essential libltdl-dev libffi-dev libssl-dev python3-dev \
             git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev \
-            libncurses5-dev libncursesw5-dev libtinfo5 cmake
+            libncurses5-dev libncursesw5-dev cmake
           
-          # Instalamos Buildozer y una versión compatible de Cython
+          # Instalamos Buildozer
           pip3 install --upgrade pip
           pip3 install --user --upgrade buildozer
           pip3 install --user --upgrade "Cython<3.0" 
           
-          # Agregamos la ruta de instalación al sistema para poder usar los comandos
+          # Agregamos la ruta al sistema
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      # 2. Corremos Buildozer directamente
+      # 2. Corremos Buildozer
       - name: Build with Buildozer
         run: |
-          # El comando "yes" acepta automáticamente las licencias de Android
           yes | buildozer android debug
 
-      # 3. Subimos el APK resultante
+      # 3. Subimos el APK
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package
-          path: bin/*.apk  # Buildozer guarda aquí el resultado
+          path: bin/*.apk
