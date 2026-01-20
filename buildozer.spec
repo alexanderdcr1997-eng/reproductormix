@@ -9,6 +9,10 @@ package.name = dalemix
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.dalemix
 
+# --- AGREGA ESTA LÍNEA AQUÍ ---
+version = 1.0
+# ------------------------------
+
 # (str) Source code where the main.py live
 source.dir = .
 
